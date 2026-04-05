@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yapım Aşamasında</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #050505;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* Ortadaki Ana Kutu */
+        .content {
+            text-align: center;
+        }
+
+        /* Giriş Animasyonu Tanımı */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        /* Yazı Stilleri ve Gecikmeler */
+        .title {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #fff, #555);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0; /* Başlangıçta gizli */
+            animation: fadeInUp 1.5s ease forwards;
+            animation-delay: 0.5s; /* Yarım saniye sonra başlar */
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            opacity: 0; /* Başlangıçta gizli */
+            animation: fadeInUp 1.5s ease forwards;
+            animation-delay: 1.2s; /* Başlıktan sonra başlar */
+        }
+
+        /* Hareketli Çizgi Efekti */
+        .line {
+            width: 0;
+            height: 2px;
+            background: #00c6ff;
+            margin: 30px auto;
+            box-shadow: 0 0 20px #00c6ff;
+            animation: growLine 2s ease forwards;
+            animation-delay: 1.8s;
+        }
+
+        @keyframes growLine {
+            from { width: 0; }
+            to { width: 150px; }
+        }
+
+        /* Arka plandaki parlama efekti */
+        .glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 198, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            animation: fadeInGlow 3s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInGlow {
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="glow"></div>
+
+    <div class="content">
+        <h1 class="title">YAPIM<br>AŞAMASINDA</h1>
+        <div class="line"></div>
+        <p class="subtitle">ÇOK YAKINDA BURADAYIZ</p>
+    </div>
+
+</body>
+</html>
