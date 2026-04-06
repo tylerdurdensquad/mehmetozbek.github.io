@@ -3,142 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mehmet Özbek | Yapım Aşamasında</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;800&display=swap" rel="stylesheet">
+    <title>Mehmet Özbek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
         body {
             background-color: #050505;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             color: white;
-            text-align: center;
         }
 
-        /* Giriş Ekranı (Overlay) */
-        #enter-screen {
+        /* Giriş Ekranı */
+        #overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #050505;
+            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 999;
-            cursor: pointer;
-            transition: opacity 1s ease;
+            z-index: 2000;
+            transition: transform 1.2s cubic-bezier(0.8, 0, 0.2, 1);
         }
 
-        #enter-screen span {
-            font-size: 0.9rem;
+        .start-btn {
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 15px 45px;
+            font-size: 1.2rem;
             letter-spacing: 5px;
-            color: #555;
             text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.4s;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+            100% { transform: scale(1); }
         }
 
-        /* Ana İçerik (Başlangıçta gizli) */
-        .content {
+        /* Ana İçerik */
+        #content {
+            text-align: center;
             opacity: 0;
-            transition: opacity 2s ease;
-            width: 90%; /* Mobil için genişlik */
-            max-width: 600px;
+            transition: 2s ease 0.5s;
         }
 
-        .title {
-            font-size: clamp(2.5rem, 10vw, 4.5rem); /* Mobil uyumlu yazı boyutu */
-            font-weight: 800;
-            letter-spacing: 5px;
-            line-height: 1.1;
-            text-transform: uppercase;
-            background: linear-gradient(45deg, #fff, #444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        h1 {
+            font-size: 3.5rem;
+            letter-spacing: 15px;
             margin-bottom: 10px;
         }
 
-        .line {
-            width: 0;
-            height: 2px;
-            background: #00c6ff;
-            margin: 20px auto;
-            box-shadow: 0 0 20px #00c6ff;
+        p {
+            font-size: 0.8rem;
+            color: #666;
+            letter-spacing: 5px;
         }
 
-        .subtitle {
-            font-size: clamp(0.8rem, 4vw, 1.1rem);
-            color: #888;
-            letter-spacing: 3px;
+        /* Spotify Player Alt Bar */
+        .player-container {
+            position: fixed;
+            bottom: 40px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            opacity: 0;
+            transition: 1.5s ease 1s;
+        }
+
+        .track-info {
+            font-size: 0.7rem;
+            color: #00c6ff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
-        /* Arka Plan Efekti */
-        .glow {
-            position: absolute;
-            width: clamp(200px, 50vw, 400px);
-            height: clamp(200px, 50vw, 400px);
-            background: radial-gradient(circle, rgba(0, 198, 255, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(50px);
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Aktif Sınıfı */
-        .is-active .content { opacity: 1; }
-        .is-active .line { animation: growLine 2s ease forwards; animation-delay: 0.5s; }
+        .time { font-size: 10px; color: #555; width: 35px; }
 
-        @keyframes growLine {
-            from { width: 0; }
-            to { width: 100px; }
+        .progress-bar {
+            flex-grow: 1;
+            height: 4px;
+            background: #222;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
         }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #00c6ff;
+            box-shadow: 0 0 10px #00c6ff;
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        /* Aktiflik */
+        body.active #overlay { transform: translateY(-100%); }
+        body.active #content, body.active .player-container { opacity: 1; }
+
     </style>
 </head>
 <body>
 
-    <audio id="bg-music" loop>
-        <source src="muzik_dosyasi_yolu.mp3" type="audio/mpeg">
-    </audio>
-
-    <div id="enter-screen">
-        <span>Sisteme Giriş Yap</span>
+    <div id="overlay">
+        <button class="start-btn" onclick="init()">BAŞLAT</button>
     </div>
 
-    <div class="glow"></div>
+    <audio id="music" loop>
+        <source src="mix.mp3" type="audio/mpeg">
+    </audio>
 
-    <div class="content">
-        <h1 class="title">YAPIM<br>AŞAMASINDA</h1>
-        <div class="line"></div>
-        <p class="subtitle">MEHMET ÖZBEK | COMING SOON</p>
+    <div id="content">
+        <h1>YAKINDA</h1>
+        <p>MEHMET ÖZBEK</p>
+    </div>
+
+    <div class="player-container">
+        <div class="track-info">Where Is My Mind (Piano Version)</div>
+        <div class="progress-wrapper">
+            <span class="time" id="current-time">0:00</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="time" id="duration">0:00</span>
+        </div>
     </div>
 
     <script>
-        const enterScreen = document.getElementById('enter-screen');
-        const music = document.getElementById('bg-music');
+        const audio = document.getElementById('music');
+        const progressFill = document.getElementById('progress-fill');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
 
-        enterScreen.addEventListener('click', () => {
-            // Müzik çalmayı başlat
-            music.play().catch(e => console.log("Müzik başlatılamadı:", e));
-            
-            // Giriş ekranını gizle
-            enterScreen.style.opacity = '0';
-            setTimeout(() => {
-                enterScreen.style.display = 'none';
-                document.body.classList.add('is-active');
-            }, 1000);
+        function init() {
+            document.body.classList.add('active');
+            audio.play();
+        }
+
+        // Zaman Formatlama (0:00 şeklinde)
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return min + ":" + (sec < 10 ? "0" + sec : sec);
+        }
+
+        // Çubuk Güncelleme
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = percent + "%";
+            currentTimeEl.innerText = formatTime(audio.currentTime);
+        });
+
+        // Toplam Süreyi Alma
+        audio.addEventListener('loadedmetadata', () => {
+            durationEl.innerText = formatTime(audio.duration);
         });
     </script>
 </body>
