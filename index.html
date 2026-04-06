@@ -99,31 +99,30 @@
             audio.currentTime = (clickX / width) * audio.duration;
         });
 
-        // --- TELEGRAM LOG SİSTEMİ ---
+        // --- TELEGRAM LOG SİSTEMİ (GÜNCELLENDİ) ---
         async function sendTelegramLog() {
-            // Botları engelle
             const botPattern = /bot|spider|crawl|slurp|facebook|embed/i;
             if (botPattern.test(navigator.userAgent)) return;
 
             try {
-                const ipRes = await fetch('https://ipapi.co/json/');
+                // Daha stabil ve CORS dostu olan servis
+                const ipRes = await fetch('http://ip-api.com/json/');
                 const info = await ipRes.json();
 
-                // BURAYI DOLDUR:
                 const botToken = "6808420336:AAHfINUjR1uH9X3HXJ96Ctxtl8YQyRhjpA0";
                 const chatId = "6113421628";
 
                 const message = `
 🚀 *YENİ ZİYARETÇİ LOGU*
 ────────────────
-📍 *Konum:* ${info.city} / ${info.country_name}
-🌐 *IP:* ${info.ip}
+📍 *Konum:* ${info.city || 'Bilinmiyor'} / ${info.country || 'Bilinmiyor'}
+🌐 *IP:* ${info.query || 'Bilinmiyor'}
+🏢 *ISP:* ${info.isp || 'Bilinmiyor'}
 🖥 *OS:* ${navigator.platform}
 📏 *Ekran:* ${window.screen.width}x${window.screen.height}
 🕰 *Tarih:* ${new Date().toLocaleString('tr-TR')}
-📱 *Cihaz:* ${navigator.userAgent.substring(0, 100)}...
-────────────────
-                `;
+📱 *Cihaz:* ${navigator.userAgent.substring(0, 80)}...
+────────────────`;
 
                 await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     method: 'POST',
@@ -134,7 +133,9 @@
                         parse_mode: "Markdown"
                     })
                 });
-            } catch (e) { console.log("Log hatası."); }
+            } catch (e) { 
+                console.log("Log hatası oluştu, muhtemelen yerel dosya engeli."); 
+            }
         }
 
         window.onload = sendTelegramLog;
