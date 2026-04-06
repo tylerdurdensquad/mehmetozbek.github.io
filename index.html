@@ -19,114 +19,102 @@
             color: white;
         }
 
-        /* Giriş Ekranı */
-        #overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            transition: transform 1.2s cubic-bezier(0.8, 0, 0.2, 1);
-        }
-
-        .start-btn {
-            background: transparent;
-            border: 2px solid #fff;
-            color: #fff;
-            padding: 15px 45px;
-            font-size: 1.2rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.4s;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255,255,255,0); }
-            100% { transform: scale(1); }
-        }
-
-        /* Ana İçerik */
         #content {
             text-align: center;
-            opacity: 0;
-            transition: 2s ease 0.5s;
+            animation: fadeIn 2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 10vw, 4rem);
             letter-spacing: 15px;
             margin-bottom: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
         p {
             font-size: 0.8rem;
             color: #666;
             letter-spacing: 5px;
-        }
-
-        /* Spotify Player Alt Bar */
-        .player-container {
-            position: fixed;
-            bottom: 40px;
-            width: 80%;
-            max-width: 500px;
-            text-align: center;
-            opacity: 0;
-            transition: 1.5s ease 1s;
-        }
-
-        .track-info {
-            font-size: 0.7rem;
-            color: #00c6ff;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
-        .progress-wrapper {
+        .player-bar {
+            position: fixed;
+            bottom: 40px;
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .track-name {
+            font-size: 10px;
+            color: #00c6ff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+
+        .play-btn:hover { transform: scale(1.1); background: #00c6ff; }
+        .play-btn svg { width: 15px; fill: #000; }
+
+        .progress-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .time { font-size: 10px; color: #555; width: 35px; }
+        .time { font-size: 10px; color: #444; min-width: 30px; }
 
-        .progress-bar {
+        .bar-bg {
             flex-grow: 1;
             height: 4px;
-            background: #222;
+            background: #1a1a1a;
             border-radius: 10px;
             position: relative;
             cursor: pointer;
         }
 
-        .progress-fill {
+        .bar-fill {
             height: 100%;
             width: 0%;
             background: #00c6ff;
-            box-shadow: 0 0 10px #00c6ff;
             border-radius: 10px;
+            box-shadow: 0 0 10px #00c6ff;
             transition: width 0.1s linear;
         }
-
-        /* Aktiflik */
-        body.active #overlay { transform: translateY(-100%); }
-        body.active #content, body.active .player-container { opacity: 1; }
-
     </style>
 </head>
 <body>
 
-    <div id="overlay">
-        <button class="start-btn" onclick="init()">BAŞLAT</button>
-    </div>
-
-    <audio id="music" loop>
+    <audio id="audio" loop>
         <source src="mix.mp3" type="audio/mpeg">
     </audio>
 
@@ -135,45 +123,67 @@
         <p>MEHMET ÖZBEK</p>
     </div>
 
-    <div class="player-container">
-        <div class="track-info">Where Is My Mind (Piano Version)</div>
-        <div class="progress-wrapper">
-            <span class="time" id="current-time">0:00</span>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill"></div>
+    <div class="player-bar">
+        <div class="controls">
+            <span class="track-name">Where Is My Mind (Piano Version)</span>
+            <button class="play-btn" id="toggle-btn" onclick="togglePlay()">
+                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="pause-icon" style="display:none;" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+        </div>
+        
+        <div class="progress-container">
+            <span class="time" id="current">0:00</span>
+            <div class="bar-bg" id="progress-bar">
+                <div class="bar-fill" id="fill"></div>
             </div>
             <span class="time" id="duration">0:00</span>
         </div>
     </div>
 
     <script>
-        const audio = document.getElementById('music');
-        const progressFill = document.getElementById('progress-fill');
-        const currentTimeEl = document.getElementById('current-time');
+        const audio = document.getElementById('audio');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const fill = document.getElementById('fill');
+        const currentEl = document.getElementById('current');
         const durationEl = document.getElementById('duration');
+        const progressBar = document.getElementById('progress-bar');
 
-        function init() {
-            document.body.classList.add('active');
-            audio.play();
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play().catch(e => alert("Müzik dosyası (mix.mp3) bulunamadı!"));
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            } else {
+                audio.pause();
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            }
         }
 
-        // Zaman Formatlama (0:00 şeklinde)
-        function formatTime(seconds) {
-            const min = Math.floor(seconds / 60);
-            const sec = Math.floor(seconds % 60);
-            return min + ":" + (sec < 10 ? "0" + sec : sec);
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return m + ":" + (sec < 10 ? "0" + sec : sec);
         }
 
-        // Çubuk Güncelleme
         audio.addEventListener('timeupdate', () => {
-            const percent = (audio.currentTime / audio.duration) * 100;
-            progressFill.style.width = percent + "%";
-            currentTimeEl.innerText = formatTime(audio.currentTime);
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                fill.style.width = progress + "%";
+                currentEl.innerText = formatTime(audio.currentTime);
+            }
         });
 
-        // Toplam Süreyi Alma
         audio.addEventListener('loadedmetadata', () => {
             durationEl.innerText = formatTime(audio.duration);
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            const width = progressBar.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
         });
     </script>
 </body>
